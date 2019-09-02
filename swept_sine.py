@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def swept_sine(order=18):
+def swept_sine(order=18, repeat=None):
     N = int(2 ** order)
     m = N / 4
     S = np.zeros(N, dtype=np.complex128)
@@ -20,6 +20,9 @@ def swept_sine(order=18):
 
     s = np.roll(s, shift)
     inv_s = np.r_[inv_s[shift:], inv_s[:shift]]
+    if repeat:
+        s = np.r_[np.tile(s, repeat), np.zeros(N)]
+
     return s / np.max(np.abs(s)), inv_s / np.max(np.abs(inv_s))
 
 
@@ -28,6 +31,8 @@ if __name__ == "__main__":
     import soundfile as sf
 
     fs = 48000
-    tsp, itsp = swept_sine(order=18)
-    sf.write('tsp18.wav', tsp, fs)
-    sf.write('itsp18.wav', itsp, fs)
+    repeat = 3
+    order = 18
+    tsp, itsp = swept_sine(order=order, repeat=repeat)
+    sf.write('tsp_{}_{}.wav'.format(order, repeat), tsp, fs)
+    sf.write('itsp_{}.wav'.format(order), itsp, fs)
